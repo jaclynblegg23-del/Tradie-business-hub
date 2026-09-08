@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tradie Business Hub</title>
+  <meta name="description" content="Simple business admin tools for Australian tradies.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark">TB</span><span>Tradie Business Hub</span></div>
+  <nav>
+    <a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#login">Log In</a>
+    <a class="btn btn-primary" href="#dashboard">Start Free</a>
+  </nav>
+</header>
+
+<main>
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow">BUILT FOR AUSTRALIAN TRADIES</div>
+    <h1>Less admin.<br><span>More tradie.</span></h1>
+    <p>Simple tools to create quotes, invoices, calculate your numbers and handle everyday business admin — without the complicated software.</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-large" href="#dashboard">Start Free</a><a class="text-link" href="#features">See how it works →</a></div>
+    <div class="trust"><span>✓ No credit card</span><span>✓ Simple to use</span><span>✓ Made for Australia</span></div>
+  </div>
+  <div class="hero-card">
+    <div class="mock-top"><span>Tradie Business Hub</span><span class="status">● Online</span></div>
+    <div class="mock-body">
+      <p class="muted">TODAY</p><h3>Good morning, Tradie 👋</h3>
+      <div class="stat-grid"><div><small>Outstanding</small><strong>$4,860</strong></div><div><small>This month</small><strong>$12,420</strong></div></div>
+      <div class="quick"><div>🧾<b>Create Quote</b><small>Send in minutes</small></div><div>💰<b>Create Invoice</b><small>Get paid faster</small></div><div>🧮<b>Calculators</b><small>Know your numbers</small></div><div>📋<b>Templates</b><small>Ready to use</small></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="section">
+  <div class="section-head"><div class="eyebrow">THE BASICS, DONE BETTER</div><h2>Everything you need to run the admin side.</h2><p>No bloated features. Just practical tools that save you time.</p></div>
+  <div class="features">
+    <article><div class="icon">🧾</div><h3>Quotes</h3><p>Create professional quotes quickly, with your business details and line items.</p><button onclick="showPanel('quote')">Try Quote Builder →</button></article>
+    <article><div class="icon">💳</div><h3>Invoices</h3><p>Turn completed work into a clean invoice your customers can understand.</p><button onclick="showPanel('invoice')">Try Invoice Builder →</button></article>
+    <article><div class="icon">🧮</div><h3>Calculators</h3><p>Work out hourly rates, markups, GST and job profitability.</p><button onclick="showPanel('calculator')">Open Calculators →</button></article>
+    <article><div class="icon">📋</div><h3>Templates & Checklists</h3><p>Save time with practical business documents ready to customise.</p><button onclick="showPanel('templates')">View Templates →</button></article>
+    <article><div class="icon">⭐</div><h3>Review Responses</h3><p>Generate professional responses to customer reviews in seconds.</p><button onclick="showPanel('reviews')">Try Review Tool →</button></article>
+    <article><div class="icon">📊</div><h3>Dashboard</h3><p>See the important numbers and jump straight into the tool you need.</p><button onclick="showPanel('dashboard')">Open Dashboard →</button></article>
+  </div>
+</section>
+
+<section id="dashboard" class="app-section">
+  <div class="app-shell">
+    <aside>
+      <div class="side-brand">TB <span>Business Hub</span></div>
+      <button class="side active" onclick="showPanel('dashboard')">▦ Dashboard</button>
+      <button class="side" onclick="showPanel('quote')">🧾 Quotes</button>
+      <button class="side" onclick="showPanel('invoice')">💳 Invoices</button>
+      <button class="side" onclick="showPanel('calculator')">🧮 Calculators</button>
+      <button class="side" onclick="showPanel('templates')">📋 Templates</button>
+      <button class="side" onclick="showPanel('reviews')">⭐ Reviews</button>
+    </aside>
+    <div class="app-main">
+      <div id="panel-dashboard" class="panel">
+        <div class="panel-head"><div><div class="eyebrow">DASHBOARD</div><h2>Good morning, Tradie 👋</h2></div><button class="btn btn-primary" onclick="showPanel('quote')">+ New Quote</button></div>
+        <div class="dash-stats"><div><small>Outstanding invoices</small><strong>$4,860</strong><span>3 invoices</span></div><div><small>Revenue this month</small><strong>$12,420</strong><span>↑ 12% vs last month</span></div><div><small>Quotes sent</small><strong>8</strong><span>3 accepted</span></div></div>
+        <div class="dash-grid"><div class="white-card"><h3>Quick actions</h3><div class="action-grid"><button onclick="showPanel('quote')">🧾 Create Quote</button><button onclick="showPanel('invoice')">💳 Create Invoice</button><button onclick="showPanel('calculator')">🧮 Calculate</button><button onclick="showPanel('reviews')">⭐ Reply to Review</button></div></div><div class="white-card"><h3>Recent activity</h3><p>Quote #1042 <span class="pill">Accepted</span></p><p>Invoice #1039 <span class="pill warning">Awaiting payment</span></p><p>Quote #1041 <span class="pill">Sent</span></p></div></div>
+      </div>
+
+      <div id="panel-quote" class="panel hidden">
+        <div class="panel-head"><div><div class="eyebrow">QUOTES</div><h2>Create a quote</h2></div></div>
+        <div class="form-card"><div class="form-grid"><label>Customer name<input id="qcustomer" placeholder="e.g. John Smith"></label><label>Job address<input id="qaddress" placeholder="e.g. 12 Main St, Richmond"></label><label>Description<input id="qdesc" placeholder="e.g. Replace hot water service"></label><label>Price (ex GST)<input id="qprice" type="number" placeholder="0.00"></label></div><button class="btn btn-primary" onclick="makeQuote()">Preview Quote</button><div id="quote-result"></div></div>
+      </div>
+
+      <div id="panel-invoice" class="panel hidden">
+        <div class="panel-head"><div><div class="eyebrow">INVOICES</div><h2>Create an invoice</h2></div></div>
+        <div class="form-card"><div class="form-grid"><label>Customer name<input id="icustomer" placeholder="e.g. Sarah Jones"></label><label>Invoice number<input id="inum" value="INV-1001"></label><label>Description<input id="idesc" placeholder="e.g. Labour & materials"></label><label>Amount (ex GST)<input id="iprice" type="number" placeholder="0.00"></label></div><button class="btn btn-primary" onclick="makeInvoice()">Preview Invoice</button><div id="invoice-result"></div></div>
+      </div>
+
+      <div id="panel-calculator" class="panel hidden">
+        <div class="panel-head"><div><div class="eyebrow">CALCULATORS</div><h2>Know your numbers</h2></div></div>
+        <div class="calc-grid"><div class="form-card"><h3>Hourly rate calculator</h3><label>Target yearly income<input id="income" type="number" value="100000"></label><label>Billable hours per week<input id="hours" type="number" value="25"></label><label>Working weeks per year<input id="weeks" type="number" value="46"></label><button class="btn btn-primary" onclick="calcRate()">Calculate</button><div id="rate-result" class="result"></div></div><div class="form-card"><h3>GST calculator</h3><label>Amount ex GST<input id="gst" type="number" placeholder="100"></label><button class="btn btn-primary" onclick="calcGST()">Add 10% GST</button><div id="gst-result" class="result"></div></div></div>
+      </div>
+
+      <div id="panel-templates" class="panel hidden">
+        <div class="panel-head"><div><div class="eyebrow">TEMPLATES</div><h2>Ready-to-use business templates</h2></div></div>
+        <div class="template-list"><button>📄 Terms & Conditions — Quote</button><button>📄 Payment Terms — Invoice</button><button>📄 Job Completion Checklist</button><button>📄 New Customer Checklist</button><button>📄 Pre-start Safety Checklist</button></div>
+      </div>
+
+      <div id="panel-reviews" class="panel hidden">
+        <div class="panel-head"><div><div class="eyebrow">GOOGLE REVIEWS</div><h2>Write a review response</h2></div></div>
+        <div class="form-card"><label>Customer review<textarea id="review" rows="5" placeholder="Paste the customer review here..."></textarea></label><label>Response tone<select id="tone"><option>Professional & friendly</option><option>Short & friendly</option><option>Warm & personal</option></select></label><button class="btn btn-primary" onclick="makeReview()">Generate response</button><div id="review-result" class="result"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="section pricing"><div class="section-head"><div class="eyebrow">SIMPLE PRICING</div><h2>Start free. Upgrade when you need more.</h2></div><div class="price-card"><div><h3>Free</h3><div class="price">$0 <small>/ forever</small></div><p>Perfect for getting started.</p><ul><li>✓ Basic quotes & invoices</li><li>✓ Calculators</li><li>✓ Essential templates</li><li>✓ Review responses</li></ul></div><a class="btn btn-primary btn-large" href="#dashboard">Start Free</a></div></section>
+
+<section id="login" class="login"><div class="login-card"><div class="eyebrow">WELCOME BACK</div><h2>Log in to Tradie Business Hub</h2><input placeholder="Email address"><input type="password" placeholder="Password"><button class="btn btn-primary btn-large">Log In</button><p class="muted">V1 demo — account authentication will be connected in the next build.</p></div></section>
+</main>
+<footer><div>© 2026 Tradie Business Hub</div><div>Simple business admin for Australian tradies.</div></footer>
+<script src="app.js"></script>
+</body>
+</html>
