@@ -161,6 +161,10 @@ function setupQuoteBuilder(){
 
   setQuoteDates();
   addQuoteItem();
+  document.getElementById('qgst').addEventListener(
+    'change',
+    calculateQuoteTotal
+  );
   loadQuoteDraft();
 }
 
@@ -414,6 +418,13 @@ function previewQuote(){
           class="secondary-action"
           onclick="printQuote()">
           Print / Save PDF
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          onclick="convertQuoteToInvoice()">
+          Convert to Invoice
         </button>
 
       </div>
@@ -712,59 +723,217 @@ function printQuote(){
    INVOICES
 ========================= */
 
+function addInvoiceItem(data={}){
+
+  const box=document.getElementById('invoice-items');
+
+  if(!box)return;
+
+  const row=document.createElement('div');
+
+  row.className='quote-item';
+
+  row.innerHTML=`
+    <input class="invoice-item-desc" placeholder="Item or service" value="${escapeHtml(data.desc||'')}">
+    <input class="invoice-item-qty" type="number" value="${data.qty ?? 1}" min="0" step="1" placeholder="Qty">
+    <input class="invoice-item-rate" type="number" min="0" step="0.01" placeholder="Rate ex GST" value="${data.rate ?? ''}">
+    <button type="button" class="remove-item" aria-label="Remove line item" onclick="this.parentElement.remove(); calculateInvoiceTotal()">×</button>
+  `;
+
+  box.appendChild(row);
+
+  row.querySelectorAll('input').forEach(input=>{
+    input.addEventListener('input',calculateInvoiceTotal);
+  });
+
+  calculateInvoiceTotal();
+}
+
+function getInvoiceData(){
+
+  const items=[];
+
+  document.querySelectorAll('#invoice-items .quote-item').forEach(row=>{
+    const desc=row.querySelector('.invoice-item-desc')?.value.trim()||'';
+    const qty=Number(row.querySelector('.invoice-item-qty')?.value)||0;
+    const rate=Number(row.querySelector('.invoice-item-rate')?.value)||0;
+
+    if(desc || rate || qty){
+      items.push({desc,qty,rate,total:qty*rate});
+    }
+  });
+
+  const subtotal=items.reduce((sum,item)=>sum+item.total,0);
+  const gstIncluded=document.getElementById('igst')?.checked||false;
+  const gst=gstIncluded ? subtotal*0.10 : 0;
+
+  return{
+    number:document.getElementById('inum')?.value.trim()||getNextInvoiceNumber(),
+    customer:document.getElementById('icustomer')?.value.trim()||'Customer',
+    email:document.getElementById('iemail')?.value.trim()||'',
+    address:document.getElementById('iaddress')?.value.trim()||'Job address',
+    reference:document.getElementById('ireference')?.value.trim()||'',
+    desc:document.getElementById('idesc')?.value.trim()||'Work',
+    items,
+    subtotal,
+    gstIncluded,
+    gst,
+    total:subtotal+gst
+  };
+}
+
+function calculateInvoiceTotal(){
+
+  const box=document.getElementById('invoice-items');
+
+  if(!box)return;
+
+  const subtotal=[...box.querySelectorAll('.quote-item')].reduce((sum,row)=>{
+    const qty=Number(row.querySelector('.invoice-item-qty')?.value)||0;
+    const rate=Number(row.querySelector('.invoice-item-rate')?.value)||0;
+    return sum+(qty*rate);
+  },0);
+
+  const gst=document.getElementById('igst')?.checked ? subtotal*0.10 : 0;
+  let totalBox=document.getElementById('invoice-live-total');
+
+  if(!totalBox){
+    totalBox=document.createElement('div');
+    totalBox.id='invoice-live-total';
+    totalBox.className='live-total';
+    box.parentElement.insertBefore(totalBox,box.nextElementSibling);
+  }
+
+  totalBox.innerHTML=`<span>Amount due</span><strong>${money(subtotal+gst)}</strong>`;
+}
+
+function getStoredInvoices(){
+
+  try{
+    return JSON.parse(localStorage.getItem('tradieHubInvoices')||'[]');
+  }catch(e){
+    return [];
+  }
+}
+
+function getNextInvoiceNumber(){
+
+  const numbers=getStoredInvoices().map(invoice=>invoice.number)
+    .map(number=>Number(String(number).match(/^INV-(\d+)$/i)?.[1])||0);
+
+  return `INV-${Math.max(1000,...numbers)+1}`;
+}
+
+function setupInvoiceBuilder(){
+
+  const panel=document.getElementById('panel-invoice');
+
+  if(!panel || document.querySelector('#invoice-items .quote-item'))return;
+
+  document.getElementById('inum').value=getNextInvoiceNumber();
+  addInvoiceItem();
+  document.getElementById('igst').addEventListener('change',calculateInvoiceTotal);
+}
+
+function saveInvoice(invoice){
+
+  const invoices=getStoredInvoices().filter(item=>item.number!==invoice.number);
+  invoices.push(invoice);
+  localStorage.setItem('tradieHubInvoices',JSON.stringify(invoices));
+}
+
+function populateInvoice(invoice){
+
+  document.getElementById('icustomer').value=invoice.customer==='Customer' ? '' : (invoice.customer||'');
+  document.getElementById('iemail').value=invoice.email||'';
+  document.getElementById('iaddress').value=invoice.address==='Job address' ? '' : (invoice.address||'');
+  document.getElementById('inum').value=invoice.number||getNextInvoiceNumber();
+  document.getElementById('ireference').value=invoice.reference||'';
+  document.getElementById('idesc').value=invoice.desc==='Work' ? '' : (invoice.desc||'');
+  document.getElementById('igst').checked=invoice.gstIncluded ?? invoice.gst>0;
+
+  const box=document.getElementById('invoice-items');
+  box.innerHTML='';
+  (invoice.items?.length ? invoice.items : [{}]).forEach(addInvoiceItem);
+  calculateInvoiceTotal();
+}
+
+function convertQuoteToInvoice(){
+
+  const quote=getQuoteData();
+
+  if(!quote.items.length)return;
+
+  const invoice={
+    number:getNextInvoiceNumber(),
+    customer:quote.customer,
+    email:quote.email,
+    address:quote.address,
+    reference:quote.number,
+    desc:quote.desc,
+    items:quote.items.map(item=>({...item})),
+    subtotal:quote.subtotal,
+    gstIncluded:quote.gst>0,
+    gst:quote.gst,
+    total:quote.total
+  };
+
+  saveInvoice(invoice);
+  populateInvoice(invoice);
+  showPanel('invoice');
+  makeInvoice();
+}
+
 function makeInvoice(){
 
-  const c=
-    document.getElementById('icustomer').value
-    ||'Customer';
+  const invoice=getInvoiceData();
 
-  const n=
-    document.getElementById('inum').value
-    ||'INV-1001';
+  if(!invoice.items.length){
+    document.getElementById('invoice-result').innerHTML='<div class="result error">Add at least one invoice item before previewing.</div>';
+    return;
+  }
 
-  const d=
-    document.getElementById('idesc').value
-    ||'Work';
+  saveInvoice(invoice);
 
-  const p=
-    Number(
-      document.getElementById('iprice').value
-    )||0;
+  const items=invoice.items.map(item=>`
+    <tr><td>${escapeHtml(item.desc||'Work')}</td><td>${item.qty}</td><td>${money(item.rate)}</td><td>${money(item.total)}</td></tr>
+  `).join('');
 
   document.getElementById(
     'invoice-result'
   ).innerHTML=`
 
-    <div class="result">
-
-      <strong>
-        INVOICE ${escapeHtml(n)}
-      </strong>
-
-      <br>
-
-      ${escapeHtml(c)}
-
-      <br>
-
-      ${escapeHtml(d)}
-
-      <br><br>
-
-      Subtotal: ${money(p)}
-
-      <br>
-
-      GST: ${money(p*.1)}
-
-      <br>
-
-      <strong>
-        Amount due: ${money(p*1.1)}
-      </strong>
+    <div class="result quote-preview invoice-preview">
+      <div class="preview-toolbar">
+        <div><span class="eyebrow">PREVIEW</span><h2>INVOICE ${escapeHtml(invoice.number)}</h2></div>
+        <button type="button" class="secondary-action" onclick="printInvoice()">Print / Save PDF</button>
+      </div>
+      <div class="preview-customer"><strong>${escapeHtml(invoice.customer)}</strong><br>${invoice.email ? `${escapeHtml(invoice.email)}<br>` : ''}${escapeHtml(invoice.address)}</div>
+      ${invoice.reference ? `<p><strong>Quote reference:</strong> ${escapeHtml(invoice.reference)}</p>` : ''}
+      <hr>
+      <strong>Job description</strong><br>${escapeHtml(invoice.desc)}
+      <div class="table-wrap"><table><thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Total</th></tr></thead><tbody>${items}</tbody></table></div>
+      <hr>
+      <div class="quote-totals"><span>Subtotal</span><strong>${money(invoice.subtotal)}</strong><span>GST</span><strong>${money(invoice.gst)}</strong><span class="grand-total">Amount due</span><strong class="grand-total">${money(invoice.total)}</strong></div>
 
     </div>
   `;
+}
+
+function printInvoice(){
+
+  const preview=document.querySelector('.invoice-preview');
+
+  if(!preview)return;
+
+  const win=window.open('','_blank','width=900,height=700');
+
+  if(!win)return;
+
+  win.document.write(`<!doctype html><html><head><title>Tradie Business Hub Invoice</title><style>body{font-family:Arial,sans-serif;padding:40px;color:#18231f}h2{margin:4px 0 20px}.eyebrow{font-size:12px;letter-spacing:1.5px;font-weight:700}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left}th:nth-child(n+2),td:nth-child(n+2){text-align:right}.quote-totals{display:grid;grid-template-columns:1fr auto;gap:8px;max-width:300px;margin-left:auto}.grand-total{font-size:18px;font-weight:800}button{display:none}hr{border:0;border-top:1px solid #ddd;margin:20px 0}</style></head><body>${preview.innerHTML}</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(),250);
 }
 
 /* =========================
@@ -863,5 +1032,8 @@ function makeReview(){
 
 document.addEventListener(
   'DOMContentLoaded',
-  setupQuoteBuilder
+  ()=>{
+    setupQuoteBuilder();
+    setupInvoiceBuilder();
+  }
 );
