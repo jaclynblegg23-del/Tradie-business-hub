@@ -72,7 +72,23 @@
 
       <div id="panel-invoice" class="panel hidden">
         <div class="panel-head"><div><div class="eyebrow">INVOICES</div><h2>Create an invoice</h2></div></div>
-        <div class="form-card"><div class="form-grid"><label>Customer name<input id="icustomer" placeholder="e.g. Sarah Jones"></label><label>Invoice number<input id="inum" value="INV-1001"></label><label>Description<input id="idesc" placeholder="e.g. Labour & materials"></label><label>Amount (ex GST)<input id="iprice" type="number" placeholder="0.00"></label></div><button class="btn btn-primary" onclick="makeInvoice()">Preview Invoice</button><div id="invoice-result"></div></div>
+        <div class="form-card">
+          <div class="form-grid">
+            <label>Customer name<input id="icustomer" placeholder="e.g. Sarah Jones"></label>
+            <label>Customer email<input id="iemail" type="email" placeholder="customer@email.com"></label>
+            <label>Job address<input id="iaddress" placeholder="e.g. 12 Main St, Richmond"></label>
+            <label>Invoice number<input id="inum" value="INV-1001"></label>
+            <label>Quote reference<input id="ireference" placeholder="e.g. QT-1001"></label>
+          </div>
+          <label>Job description<textarea id="idesc" rows="3" placeholder="e.g. Labour & materials"></textarea></label>
+          <div class="section-row"><h3>Invoice items</h3><span class="muted">All prices are entered ex GST</span></div>
+          <div class="quote-item quote-item-head"><span>Description</span><span>Qty</span><span>Rate</span><span></span></div>
+          <div id="invoice-items"></div>
+          <button type="button" class="secondary-action" onclick="addInvoiceItem()">+ Add line item</button>
+          <label class="checkbox-row"><input id="igst" type="checkbox" checked> Include 10% GST</label>
+          <button class="btn btn-primary" onclick="makeInvoice()">Preview Invoice</button>
+          <div id="invoice-result"></div>
+        </div>
       </div>
 
       <div id="panel-calculator" class="panel hidden">
