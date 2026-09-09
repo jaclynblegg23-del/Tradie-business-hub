@@ -42,3 +42,34 @@
   width:24%;
   text-align:right;
 }
+#quote-result table{
+  table-layout:auto;
+  font-size:13px;
+}
+
+#quote-result th,
+#quote-result td{
+  padding:7px 3px;
+}
+
+#quote-result th:first-child,
+#quote-result td:first-child{
+  width:auto;
+  text-align:left;
+}
+
+#quote-result th:nth-child(2),
+#quote-result td:nth-child(2){
+  width:45px;
+  text-align:center;
+  white-space:nowrap;
+}
+
+#quote-result th:nth-child(3),
+#quote-result td:nth-child(3),
+#quote-result th:nth-child(4),
+#quote-result td:nth-child(4){
+  width:90px;
+  text-align:right;
+  white-space:nowrap;
+}
